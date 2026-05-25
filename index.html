@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- TODO: 替换为你的真实姓名 -->
+  <title>[姓名] · IP 操盘手 × AI</title>
+  <meta name="description" content="IP 操盘手 · 用 AI 重构 IP 全链路，帮品牌方做 0→1 / 1→10 的内容增长。" />
+
+  <!-- Tailwind -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- React 18 + Babel + Framer Motion -->
+  <script crossorigin src="https://unpkg.com/react@18.3.1/umd/react.development.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js"></script>
+  <script src="https://unpkg.com/framer-motion@11.11.17/dist/framer-motion.js"></script>
+  <script>window.Motion = window.Motion || window.FramerMotion || window.framerMotion;</script>
+
+  <!-- Google Fonts: Instrument Serif (italic 标题) + Barlow (正文) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            heading: ['"Instrument Serif"', 'Georgia', 'serif'],
+            body: ['Barlow', 'system-ui', '-apple-system', 'PingFang SC', 'sans-serif'],
+            display: ['"PingFang SC"', '"Hiragino Sans GB"', '"Microsoft YaHei"', '"Source Han Sans CN"', '-apple-system', 'system-ui', 'sans-serif']
+          },
+          borderRadius: {
+            DEFAULT: "9999px"
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Barlow', system-ui, -apple-system, 'PingFang SC', sans-serif;
+      background:
+        radial-gradient(ellipse at 50% 18%, rgba(139, 92, 246, 0.42) 0%, transparent 55%),
+        radial-gradient(ellipse at 12% 70%, rgba(59, 130, 246, 0.38) 0%, transparent 52%),
+        radial-gradient(ellipse at 85% 55%, rgba(236, 72, 153, 0.28) 0%, transparent 50%),
+        radial-gradient(ellipse at 60% 95%, rgba(34, 211, 238, 0.22) 0%, transparent 48%),
+        radial-gradient(ellipse at 30% 110%, rgba(168, 85, 247, 0.20) 0%, transparent 45%),
+        #0a0420;
+      background-attachment: fixed;
+      color: #fff;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    /* 玻璃卡背后加一层暗色加成，避免被亮背景吃掉文字可读性 */
+    .liquid-glass, .liquid-glass-strong {
+      background-color: rgba(8, 4, 24, 0.25) !important;
+    }
+
+    /* === Liquid Glass (轻量) === */
+    .liquid-glass {
+      background: rgba(255, 255, 255, 0.01);
+      background-blend-mode: luminosity;
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      border: none;
+      box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.1);
+      position: relative;
+      overflow: hidden;
+    }
+    .liquid-glass::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      padding: 1.4px;
+      background: linear-gradient(180deg,
+        rgba(255, 255, 255, 0.45) 0%,
+        rgba(255, 255, 255, 0.15) 20%,
+        rgba(255, 255, 255, 0) 40%,
+        rgba(255, 255, 255, 0) 60%,
+        rgba(255, 255, 255, 0.15) 80%,
+        rgba(255, 255, 255, 0.45) 100%);
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      pointer-events: none;
+    }
+
+    /* === Liquid Glass (重磅，用于主 CTA) === */
+    .liquid-glass-strong {
+      background: rgba(255, 255, 255, 0.01);
+      background-blend-mode: luminosity;
+      backdrop-filter: blur(50px);
+      -webkit-backdrop-filter: blur(50px);
+      border: none;
+      box-shadow: 4px 4px 4px rgba(0, 0, 0, 0.05), inset 0 1px 1px rgba(255, 255, 255, 0.15);
+      position: relative;
+      overflow: hidden;
+    }
+    .liquid-glass-strong::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      padding: 1.4px;
+      background: linear-gradient(180deg,
+        rgba(255, 255, 255, 0.5) 0%,
+        rgba(255, 255, 255, 0.2) 20%,
+        rgba(255, 255, 255, 0) 40%,
+        rgba(255, 255, 255, 0) 60%,
+        rgba(255, 255, 255, 0.2) 80%,
+        rgba(255, 255, 255, 0.5) 100%);
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      pointer-events: none;
+    }
+
+    .font-heading { font-style: italic; }
+
+    /* 隐藏滚动条但保留滚动（carousel） */
+    .scrollbar-hide::-webkit-scrollbar { display: none; }
+    .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+    /* 初始 loading（React 挂载前） */
+    #root:empty::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: #000;
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel" data-presets="env,react">
+    const { useState, useEffect, useRef, useCallback } = React;
+    const Motion = window.Motion || window.FramerMotion;
+    const motion = Motion.motion;
+
+    // 抑制 Framer Motion 关于 list key 的良性警告
+    const _origError = console.error;
+    console.error = (...args) => {
+      if (typeof args[0] === 'string' && (args[0].includes('list key') || args[0].includes('Each child in a list'))) return;
+      _origError.apply(console, args);
+    };
+
+    // ============================================
+    // Starfield：全局粒子星空背景（canvas）
+    // 三层：背景星（闪烁）+ 彩色星尘（缓慢漂浮）+ 偶发流星
+    // ============================================
+    function Starfield() {
+      const canvasRef = useRef(null);
+
+      useEffect(() => {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        const DPR = Math.min(window.devicePixelRatio || 1, 2);
+        let W = 0, H = 0;
+
+        function resize() {
+          W = window.innerWidth;
+          H = window.innerHeight;
+          canvas.width = W * DPR;
+          canvas.height = H * DPR;
+          canvas.style.width = W + 'px';
+          canvas.style.height = H + 'px';
+          ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+        }
+        resize();
+        window.addEventListener('resize', resize);
+
+        // 星云层：4 个超大柔光色斑，固定位置，呼吸式脉动
+        const nebulae = [
+          { px: 0.18, py: 0.22, rr: 0.62, c: 'rgba(168, 85, 247,',  baseO: 0.32, ph: 0    },
+          { px: 0.82, py: 0.62, rr: 0.66, c: 'rgba(59, 130, 246,',  baseO: 0.30, ph: 1.6  },
+          { px: 0.50, py: 0.50, rr: 0.80, c: 'rgba(236, 72, 153,',  baseO: 0.22, ph: 3.2  },
+          { px: 0.08, py: 0.85, rr: 0.50, c: 'rgba(34, 211, 238,',  baseO: 0.26, ph: 4.7  }
+        ];
+
+        // 背景星：纯白小点，明亮闪烁
+        const stars = Array.from({ length: 320 }, () => ({
+          x: Math.random() * W,
+          y: Math.random() * H,
+          r: Math.random() * 1.3 + 0.3,
+          o: Math.random() * 0.45 + 0.5,
+          tw: Math.random() * 0.003 + 0.0008,
+          ph: Math.random() * Math.PI * 2
+        }));
+
+        // 彩色星尘：缓慢漂浮 + 辉光
+        const dustColors = [
+          'rgba(196, 181, 253,',  // 浅紫
+          'rgba(147, 197, 253,',  // 浅蓝
+          'rgba(165, 243, 252,',  // 浅青
+          'rgba(251, 207, 232,',  // 浅粉
+          'rgba(255, 255, 255,'   // 白
+        ];
+        const dust = Array.from({ length: 80 }, () => ({
+          x: Math.random() * W,
+          y: Math.random() * H,
+          vx: (Math.random() - 0.5) * 0.16,
+          vy: (Math.random() - 0.5) * 0.16,
+          r: Math.random() * 1.8 + 0.7,
+          o: Math.random() * 0.45 + 0.3,
+          c: dustColors[Math.floor(Math.random() * dustColors.length)]
+        }));
+
+        // 流星
+        let shooting = [];
+        let nextShoot = performance.now() + 2500 + Math.random() * 4000;
+
+        function spawnShoot() {
+          const fromLeft = Math.random() > 0.5;
+          const speed = Math.random() * 5 + 9;
+          const angle = Math.random() * 0.25 + 0.15;
+          shooting.push({
+            x: fromLeft ? -60 : W + 60,
+            y: Math.random() * H * 0.55,
+            vx: speed * (fromLeft ? 1 : -1),
+            vy: speed * angle,
+            life: 1
+          });
+        }
+
+        let raf;
+        function tick(now) {
+          ctx.clearRect(0, 0, W, H);
+
+          // 星云：最底层柔光色斑（呼吸脉动）
+          for (const n of nebulae) {
+            const x = n.px * W;
+            const y = n.py * H;
+            const r = n.rr * Math.min(W, H);
+            const pulse = 1 + Math.sin(now * 0.00035 + n.ph) * 0.12;
+            const op = n.baseO * pulse;
+            const g = ctx.createRadialGradient(x, y, 0, x, y, r);
+            g.addColorStop(0,   n.c + op + ')');
+            g.addColorStop(0.45, n.c + (op * 0.5) + ')');
+            g.addColorStop(1,   n.c + '0)');
+            ctx.fillStyle = g;
+            ctx.fillRect(x - r, y - r, r * 2, r * 2);
+          }
+
+          // 背景星
+          for (const s of stars) {
+            const sin = Math.sin(now * s.tw + s.ph);
+            const opacity = s.o * (0.55 + sin * 0.45);
+            ctx.fillStyle = 'rgba(255, 255, 255, ' + opacity + ')';
+            ctx.beginPath();
+            ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+            ctx.fill();
+          }
+
+          // 彩色星尘（带轻微辉光）
+          for (const d of dust) {
+            d.x += d.vx;
+            d.y += d.vy;
+            if (d.x < -10) d.x = W + 10;
+            if (d.x > W + 10) d.x = -10;
+            if (d.y < -10) d.y = H + 10;
+            if (d.y > H + 10) d.y = -10;
+            // glow
+            ctx.fillStyle = d.c + (d.o * 0.35) + ')';
+            ctx.beginPath();
+            ctx.arc(d.x, d.y, d.r * 3, 0, Math.PI * 2);
+            ctx.fill();
+            // core
+            ctx.fillStyle = d.c + d.o + ')';
+            ctx.beginPath();
+            ctx.arc(d.x, d.y, d.r, 0, Math.PI * 2);
+            ctx.fill();
+          }
+
+          // 流星
+          if (now >= nextShoot) {
+            spawnShoot();
+            nextShoot = now + 5000 + Math.random() * 8000;
+          }
+          for (let i = shooting.length - 1; i >= 0; i--) {
+            const ss = shooting[i];
+            ss.x += ss.vx;
+            ss.y += ss.vy;
+            ss.life -= 0.011;
+            if (ss.life <= 0 || ss.x < -120 || ss.x > W + 120 || ss.y > H + 80) {
+              shooting.splice(i, 1);
+              continue;
+            }
+            const mag = Math.hypot(ss.vx, ss.vy);
+            const tailLen = 70;
+            const tailX = ss.x - (ss.vx / mag) * tailLen;
+            const tailY = ss.y - (ss.vy / mag) * tailLen;
+            const grad = ctx.createLinearGradient(ss.x, ss.y, tailX, tailY);
+            grad.addColorStop(0, 'rgba(255, 255, 255, ' + (ss.life * 0.95) + ')');
+            grad.addColorStop(0.4, 'rgba(180, 220, 255, ' + (ss.life * 0.5) + ')');
+            grad.addColorStop(1, 'rgba(120, 180, 255, 0)');
+            ctx.strokeStyle = grad;
+            ctx.lineWidth = 1.6;
+            ctx.lineCap = 'round';
+            ctx.beginPath();
+            ctx.moveTo(ss.x, ss.y);
+            ctx.lineTo(tailX, tailY);
+            ctx.stroke();
+            // 头部小亮点
+            ctx.fillStyle = 'rgba(255, 255, 255, ' + ss.life + ')';
+            ctx.beginPath();
+            ctx.arc(ss.x, ss.y, 1.8, 0, Math.PI * 2);
+            ctx.fill();
+          }
+
+          raf = requestAnimationFrame(tick);
+        }
+        raf = requestAnimationFrame(tick);
+
+        return () => {
+          cancelAnimationFrame(raf);
+          window.removeEventListener('resize', resize);
+        };
+      }, []);
+
+      return (
+        <canvas
+          ref={canvasRef}
+          className="fixed inset-0 pointer-events-none"
+          style={{ zIndex: 0 }}
+        />
+      );
+    }
+
+    // ============================================
+    // BlurText：词级 blur-in 入场，IntersectionObserver 触发
+    // 用 \n 强制换行；每行内可用空格分词做错时入场
+    // ============================================
+    function BlurText({ text, className, delayBase = 0 }) {
+      const containerRef = useRef(null);
+      const [visible, setVisible] = useState(false);
+      useEffect(() => {
+        const node = containerRef.current;
+        if (!node) return;
+        const io = new IntersectionObserver(([e]) => {
+          if (e.isIntersecting) { setVisible(true); io.disconnect(); }
+        }, { threshold: 0.1 });
+        io.observe(node);
+        return () => io.disconnect();
+      }, []);
+      const lines = text.split('\n');
+      let chunkIdx = 0;
+      return (
+        <div ref={containerRef} className={className}>
+          {lines.map((line, li) => {
+            const words = line.split(' ');
+            return (
+              <div
+                key={li}
+                style={{ display: 'flex', flexWrap: 'nowrap', justifyContent: 'center', whiteSpace: 'nowrap' }}
+              >
+                {words.map((word, wi) => {
+                  const i = chunkIdx++;
+                  return (
+                    <motion.span
+                      key={wi}
+                      initial={{ filter: 'blur(10px)', opacity: 0, y: 50 }}
+                      animate={visible ? {
+                        filter: ['blur(10px)', 'blur(5px)', 'blur(0px)'],
+                        opacity: [0, 0.5, 1],
+                        y: [50, -5, 0]
+                      } : undefined}
+                      transition={{ duration: 0.7, times: [0, 0.5, 1], ease: 'easeOut', delay: delayBase + (i * 100) / 1000 }}
+                      style={{ display: 'inline-block', marginRight: wi < words.length - 1 ? '0.28em' : '0' }}
+                    >
+                      {word}
+                    </motion.span>
+                  );
+                })}
+              </div>
+            );
+          })}
+        </div>
+      );
+    }
+
+    // ============================================
+    // PopIn：滚动进入视口时的"蹦出"动画
+    // y + opacity + blur + scale 复合入场，once: true 只触发一次
+    // ============================================
+    function PopIn({ children, delay = 0, y = 48, className = '' }) {
+      return (
+        <motion.div
+          initial={{ opacity: 0, y, filter: 'blur(10px)', scale: 0.96 }}
+          whileInView={{ opacity: 1, y: 0, filter: 'blur(0px)', scale: 1 }}
+          viewport={{ once: false, margin: '-60px' }}
+          transition={{ duration: 0.75, delay, ease: [0.16, 1, 0.3, 1] }}
+          className={className}
+        >
+          {children}
+        </motion.div>
+      );
+    }
+
+    // ============================================
+    // 图标
+    // ============================================
+    const ArrowUpRight = ({ className }) => (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+        <path d="M7 17L17 7" />
+        <path d="M7 7h10v10" />
+      </svg>
+    );
+    const PlayIcon = ({ className }) => (
+      <svg viewBox="0 0 24 24" fill="currentColor" className={className}>
+        <polygon points="6 4 20 12 6 20 6 4" />
+      </svg>
+    );
+    const Material = ({ d, className }) => (
+      <svg viewBox="0 0 24 24" fill="currentColor" className={className}><path d={d} /></svg>
+    );
+
+    // Material 图标路径
+    const ICON = {
+      target:   'M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8zm0-6C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z',
+      layers:   'M11.99 18.54 4.62 12.81 3 14.07l9 7 9-7-1.63-1.27-7.38 5.74zM12 16l7.36-5.73L21 9l-9-7-9 7 1.63 1.27L12 16z',
+      chart:    'M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6h-6z',
+      clock:    'M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z',
+      globe:    'M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM18.92 8h-2.95c-.32-1.25-.78-2.45-1.38-3.56 1.84.63 3.37 1.91 4.33 3.56zM12 4.04c.83 1.2 1.48 2.53 1.91 3.96h-3.82c.43-1.43 1.08-2.76 1.91-3.96zM4.26 14C4.1 13.36 4 12.69 4 12s.1-1.36.26-2h3.38c-.08.66-.14 1.32-.14 2 0 .68.06 1.34.14 2H4.26zm.82 2h2.95c.32 1.25.78 2.45 1.38 3.56-1.84-.63-3.37-1.9-4.33-3.56zm2.95-8H5.08c.96-1.66 2.49-2.93 4.33-3.56C8.81 5.55 8.35 6.75 8.03 8zM12 19.96c-.83-1.2-1.48-2.53-1.91-3.96h3.82c-.43 1.43-1.08 2.76-1.91 3.96zM14.34 14H9.66c-.09-.66-.16-1.32-.16-2 0-.68.07-1.35.16-2h4.68c.09.65.16 1.32.16 2 0 .68-.07 1.34-.16 2zm.25 5.56c.6-1.11 1.06-2.31 1.38-3.56h2.95c-.96 1.65-2.49 2.93-4.33 3.56zM16.36 14c.08-.66.14-1.32.14-2 0-.68-.06-1.34-.14-2h3.38c.16.64.26 1.31.26 2s-.1 1.36-.26 2h-3.38z',
+      megaphone:'M21 11h-2v2h2v-2zm-2 5.51c.91.59 1.97 1.07 3 1.32v-2.07c-.78-.21-1.96-.94-3-1.74v2.49zM22 8.17c-1.03.25-2.09.73-3 1.32v2.49c1.04-.8 2.22-1.53 3-1.74V8.17zM5 9H2v6h3l4 4V5L5 9z'
+    };
+
+    // ============================================
+    // 数据
+    // ============================================
+    const NAV = [
+      { label: '首页', href: '#top' },
+      { label: '关于', href: '#about' },
+      { label: '案例', href: '#cases' },
+      { label: '方法', href: '#method' },
+      { label: '作品', href: '#works' }
+    ];
+
+    const CASES = [
+      { name: '[品牌 A]', period: '2024 — 至今', tags: ['抖音', '小红书', '私域'], metric: '+58万', sub: '8 个月涨粉 / GMV 月销破 300万', desc: '从 0 起号，重构内容人设 + AI 批量化生产 + 私域漏斗，把单纯的颜值号做成带货 IP。', icon: ICON.target },
+      { name: '[品牌 B]', period: '2023 — 2024', tags: ['B站', '知乎', '长内容'],   metric: '12×',   sub: '单条爆款最高 1200万 播放',     desc: '为科技品牌搭建知识型 IP 矩阵，用 AI 做选题挖掘 + 脚本结构化，单账号产能提升 12 倍。',     icon: ICON.chart },
+      { name: '[品牌 C]', period: '2024 Q2',    tags: ['视频号', '直播', '中老年'], metric: '¥820万', sub: '单场直播 GMV / 连续 3 场破百万',  desc: '瞄准银发经济，用 AI 做粉丝画像 + 选品策略，把传统消费品做成情绪共鸣型 IP。',                icon: ICON.megaphone },
+      { name: '[品牌 D]', period: '2025 — 至今', tags: ['创始人 IP', 'B2B', '海外'],  metric: '3个月', sub: 'CEO 个人 IP 从 0 做到行业 Top10', desc: '为 SaaS 创始人定制双语 IP 策略，从内容定位、视觉系统到分发节奏全链路接管。',                  icon: ICON.layers }
+    ];
+
+    const METHODS = [
+      { step: 'Step 01', title: '定位诊断', icon: ICON.target,    tags: ['赛道扫描', '对标拆解', '人设差异化', 'GAP 分析'], desc: '用 AI 跑赛道扫描、对标账号反编译、人设差异化分析，3 天给出一份 IP 定位报告，告诉你"该做什么、不该做什么"。' },
+      { step: 'Step 02', title: '内容生产', icon: ICON.layers,    tags: ['选题挖掘', 'Agent 脚本', '视觉批产', '剪辑流水线'], desc: '搭一套属于你的 Prompt 套件 + Agent 流水线，一个人撑起一支团队的产能，从选题到分发全自动。' },
+      { step: 'Step 03', title: '数据迭代', icon: ICON.chart,     tags: ['多平台看板', '爆款归因', 'Prompt 库迭代', '日更复盘'], desc: '每周用 AI 复盘"哪条爆了、为什么爆"，把成功模式沉淀回 Prompt 库——越跑越准，不靠运气。' }
+    ];
+
+    const WORKS = [
+      { platform: '抖音 · 视频',     title: '爆款拆解：为什么这条视频火了？',           meta: '320万 播放 · 1.2万 赞',  seed: 'work1' },
+      { platform: '小红书 · 长图文', title: 'AI 时代，IP 操盘手的 5 个新动作',          meta: '8.7万 收藏 · 2400 评论', seed: 'work2' },
+      { platform: 'B站 · 长视频',     title: '我用 AI 做了一个百万粉账号',               meta: '56万 播放 · 3.2万 三连', seed: 'work3' },
+      { platform: '公众号',           title: '别再迷信"内容为王"了，2026 该看什么？',  meta: '12万 阅读 · 3800 在看',  seed: 'work4' },
+      { platform: '视频号',           title: '情绪经济：为什么银发族会买单？',           meta: '180万 播放 · 8200 赞',  seed: 'work5' },
+      { platform: '知乎 · 回答',     title: '如何用 AI 把 1 个人当 5 个人用？',         meta: '4.5万 赞同 · 2100 收藏', seed: 'work6' },
+      { platform: '播客',             title: '操盘手访谈：从 0 到 1 我都做对了什么',     meta: '9.8万 收听',             seed: 'work7' }
+    ];
+
+    const SKILLS = ['IP 定位诊断', '人设打磨', '爆款选题', '脚本结构化', 'AI 内容流水线', 'Prompt 工程', 'Agent 搭建', '短视频投流', '私域漏斗', '直播 SOP', '数据归因', '品牌叙事'];
+
+    // ============================================
+    // Navbar
+    // ============================================
+    function Navbar() {
+      // z-[100]，确保永远压在所有 section 内容之上
+      return (
+        <div className="fixed top-4 left-0 right-0 z-[100] px-4 lg:px-16 flex items-center justify-between pointer-events-none">
+          <div className="liquid-glass w-12 h-12 rounded-full flex items-center justify-center pointer-events-auto">
+            <span className="font-heading text-white text-2xl leading-none lowercase">x</span>
+          </div>
+          <nav className="hidden md:flex liquid-glass rounded-full p-1.5 items-center gap-0.5 pointer-events-auto">
+            {NAV.map(n => (
+              <a key={n.href} href={n.href} className="px-3 py-2 text-sm font-medium text-white/90 font-body rounded-full hover:bg-white/5 transition">{n.label}</a>
+            ))}
+            <a href="#contact" className="ml-1 bg-white text-black px-4 py-2 text-sm font-medium rounded-full inline-flex items-center gap-1 whitespace-nowrap">
+              聊聊项目 <ArrowUpRight className="w-3.5 h-3.5" />
+            </a>
+          </nav>
+          <div className="w-12 h-12"></div>
+        </div>
+      );
+    }
+
+    // ============================================
+    // Hero
+    // ============================================
+    function Hero() {
+      const ease = [0.16, 1, 0.3, 1];
+      const initial = { filter: 'blur(10px)', opacity: 0, y: 20 };
+      const animate = { filter: 'blur(0px)', opacity: 1, y: 0 };
+
+      return (
+        <section id="top" className="relative h-screen min-h-[640px] overflow-hidden">
+          <div className="relative z-10 h-full flex flex-col items-center justify-center pt-24 pb-12 px-4">
+            <div className="flex flex-col items-center justify-center text-center max-w-4xl">
+
+              {/* 顶部 badge */}
+              <motion.div
+                initial={initial} animate={animate}
+                transition={{ duration: 0.8, delay: 0.4, ease }}
+                className="liquid-glass rounded-full inline-flex items-center gap-2 pr-3 py-1 pl-1"
+              >
+                <span className="bg-white text-black px-3 py-1 text-xs font-semibold rounded-full font-body">新</span>
+                <span className="text-sm text-white/90 font-body">AI × IP 操盘服务 · 智能引领未来</span>
+              </motion.div>
+
+              {/* 大标题：BlurText 词级入场，强制 2 行 */}
+              <div className="mt-6 max-w-4xl">
+                <BlurText
+                  text={"把品牌的理念\n装进用户的心智"}
+                  className="text-4xl md:text-5xl lg:text-6xl font-display font-black text-white leading-[1.1] tracking-tight"
+                  delayBase={0.6}
+                />
+              </div>
+
+              {/* 副标 */}
+              <motion.p
+                initial={initial} animate={animate}
+                transition={{ duration: 0.8, delay: 1.0, ease }}
+                className="mt-6 text-sm md:text-base text-white max-w-2xl font-body font-light leading-relaxed px-2"
+              >
+                操盘手 <span className="text-white">[姓名]</span> · 用 AI 重构 IP 全链路 · 帮品牌方做 0→1 / 1→10 的内容增长。每个项目按方法论跑，不靠玄学。
+              </motion.p>
+
+              {/* CTA 组 */}
+              <motion.div
+                initial={initial} animate={animate}
+                transition={{ duration: 0.8, delay: 1.2, ease }}
+                className="flex items-center gap-6 mt-8"
+              >
+                <a href="#contact" className="liquid-glass-strong rounded-full px-5 py-2.5 text-sm font-medium text-white inline-flex items-center gap-2">
+                  聊聊你的项目 <ArrowUpRight className="h-5 w-5" />
+                </a>
+                <a href="#cases" className="text-sm font-medium text-white inline-flex items-center gap-2 hover:text-white/80 transition">
+                  查看案例 <PlayIcon className="h-4 w-4" />
+                </a>
+              </motion.div>
+
+            </div>
+          </div>
+        </section>
+      );
+    }
+
+    // ============================================
+    // 复用：section 头部（kicker + serif italic 大标题）
+    // ============================================
+    function SectionHeader({ kicker, lines }) {
+      return (
+        <PopIn>
+          <p className="text-xs md:text-sm font-body text-white/70 mb-3 tracking-widest">// {kicker}</p>
+          <h2 className="font-display font-black text-white text-4xl md:text-5xl lg:text-6xl leading-[1.1] tracking-tight">
+            {lines.map((l, i) => (
+              <span key={i}>{l}{i < lines.length - 1 && <br/>}</span>
+            ))}
+          </h2>
+        </PopIn>
+      );
+    }
+
+    // 复用：单张液态玻璃卡片（方法 / 案例都用）
+    function GlassCard({ icon, tags, title, desc, metric, metricSub, period }) {
+      return (
+        <div className="liquid-glass rounded-[1.25rem] p-5 md:p-6 min-h-[280px] flex flex-col">
+          <div className="flex items-start justify-between gap-4">
+            <div className="liquid-glass w-11 h-11 rounded-[0.75rem] flex items-center justify-center">
+              <Material d={icon} className="h-6 w-6 text-white" />
+            </div>
+            <div className="flex flex-wrap justify-end gap-1.5 max-w-[70%]">
+              {tags.map(t => (
+                <span key={t} className="liquid-glass rounded-full px-3 py-1 text-[11px] text-white/90 font-body whitespace-nowrap">{t}</span>
+              ))}
+            </div>
+          </div>
+
+          {/* 中间 metric（案例卡专用） */}
+          {metric && (
+            <div className="mt-6">
+              <div className="font-heading italic text-white text-5xl md:text-6xl tracking-[-2px] leading-none">{metric}</div>
+              {metricSub && <p className="mt-2 text-xs text-white/60 font-body">{metricSub}</p>}
+              {period && <p className="mt-1 text-[10px] uppercase tracking-widest text-white/40 font-body">{period}</p>}
+            </div>
+          )}
+
+          <div className="flex-1" />
+
+          <div className="mt-6">
+            <h3 className="font-heading italic text-white text-3xl md:text-4xl tracking-[-1px] leading-none">{title}</h3>
+            <p className="mt-3 text-sm text-white/90 font-body font-light leading-snug max-w-[36ch]">{desc}</p>
+          </div>
+        </div>
+      );
+    }
+
+    // ============================================
+    // Section: IP 案例
+    // ============================================
+    function CasesSection() {
+      return (
+        <section id="cases" className="relative z-10 min-h-screen px-8 md:px-16 lg:px-20 pt-20 pb-12 flex flex-col">
+          <SectionHeader kicker="操盘案例" lines={['过往案例']} />
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-10">
+            {CASES.map((c, i) => (
+              <PopIn key={c.name} delay={i * 0.08}>
+                <GlassCard
+                  icon={c.icon}
+                  tags={c.tags}
+                  title={c.name}
+                  desc={c.desc}
+                  metric={c.metric}
+                  metricSub={c.sub}
+                  period={c.period}
+                />
+              </PopIn>
+            ))}
+          </div>
+        </section>
+      );
+    }
+
+    // ============================================
+    // Section: AI 方法论（带视频背景）
+    // ============================================
+    function MethodSection() {
+      return (
+        <section id="method" className="relative min-h-screen overflow-hidden">
+          <div className="relative z-10 px-8 md:px-16 lg:px-20 pt-24 pb-10 flex flex-col min-h-screen">
+            <SectionHeader kicker="方法论" lines={['AI不是工具', '是新的生产关系']} />
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mt-10">
+              {METHODS.map((m, i) => (
+                <PopIn key={m.title} delay={i * 0.1}>
+                  <div className="liquid-glass rounded-[1.25rem] p-5 md:p-6 min-h-[280px] flex flex-col">
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="liquid-glass w-11 h-11 rounded-[0.75rem] flex items-center justify-center">
+                        <Material d={m.icon} className="h-6 w-6 text-white" />
+                      </div>
+                      <div className="flex flex-wrap justify-end gap-1.5 max-w-[70%]">
+                        {m.tags.map(t => (
+                          <span key={t} className="liquid-glass rounded-full px-3 py-1 text-[11px] text-white/90 font-body whitespace-nowrap">{t}</span>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="mt-6">
+                      <p className="text-xs uppercase tracking-widest text-white/50 font-body">{m.step}</p>
+                    </div>
+                    <div className="flex-1" />
+                    <div className="mt-6">
+                      <h3 className="font-heading italic text-white text-3xl md:text-4xl tracking-[-1px] leading-none">{m.title}</h3>
+                      <p className="mt-3 text-sm text-white/90 font-body font-light leading-snug max-w-[32ch]">{m.desc}</p>
+                    </div>
+                  </div>
+                </PopIn>
+              ))}
+            </div>
+          </div>
+        </section>
+      );
+    }
+
+    // ============================================
+    // Section: 内容选集（横向 carousel + 液态玻璃卡片）
+    // ============================================
+    function WorksSection() {
+      const scrollerRef = useRef(null);
+      const scrollBy = (dir) => {
+        const el = scrollerRef.current;
+        if (!el) return;
+        const card = el.querySelector('[data-card]');
+        const gap = 20;
+        const step = card ? card.offsetWidth + gap : 320;
+        el.scrollBy({ left: dir * step, behavior: 'smooth' });
+      };
+
+      return (
+        <section id="works" className="relative z-10 min-h-screen px-8 md:px-16 lg:px-20 pt-20 pb-12 flex flex-col">
+          <div className="flex items-end justify-between gap-6 flex-wrap mb-8">
+            <SectionHeader kicker="内容选集" lines={['内容选集']} />
+            <div className="flex items-center gap-3">
+              <button onClick={() => scrollBy(-1)} aria-label="上一个" className="liquid-glass w-11 h-11 rounded-full flex items-center justify-center text-white hover:bg-white/5 transition">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+              </button>
+              <button onClick={() => scrollBy(1)} aria-label="下一个" className="liquid-glass w-11 h-11 rounded-full flex items-center justify-center text-white hover:bg-white/5 transition">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <div ref={scrollerRef} className="scrollbar-hide overflow-x-auto overflow-y-hidden pb-2 snap-x snap-mandatory">
+            <div className="flex gap-5 w-max">
+              {WORKS.map((w, i) => (
+                <motion.a
+                  key={w.seed}
+                  href="#"
+                  data-card
+                  initial={{ opacity: 0, y: 50, filter: 'blur(10px)', scale: 0.95 }}
+                  whileInView={{ opacity: 1, y: 0, filter: 'blur(0px)', scale: 1 }}
+                  viewport={{ once: false, margin: '-40px' }}
+                  transition={{ duration: 0.7, delay: Math.min(i * 0.06, 0.36), ease: [0.16, 1, 0.3, 1] }}
+                  className="snap-start shrink-0 w-[260px] sm:w-[300px] md:w-[340px] block group"
+                >
+                  <div className="liquid-glass rounded-[1.25rem] overflow-hidden">
+                    <div className="aspect-[3/4] bg-neutral-800 relative">
+                      {/* TODO: 替换为你的真实内容封面 */}
+                      <img src={`https://picsum.photos/seed/${w.seed}/600/800`} className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition" alt={w.title} />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/10 to-transparent" />
+                      <div className="absolute inset-0 flex flex-col justify-end p-5">
+                        <span className="text-[10px] uppercase tracking-widest text-white/80 mb-2 font-body">{w.platform}</span>
+                        <h3 className="font-heading italic text-white text-2xl leading-tight">{w.title}</h3>
+                        <div className="mt-3 text-xs text-white/80 font-body">{w.meta}</div>
+                      </div>
+                    </div>
+                  </div>
+                </motion.a>
+              ))}
+            </div>
+          </div>
+        </section>
+      );
+    }
+
+    // ============================================
+    // Section: 关于我
+    // ============================================
+    function AboutSection() {
+      return (
+        <section id="about" className="relative z-10 min-h-screen px-8 md:px-16 lg:px-20 pt-20 pb-12 flex flex-col">
+          <SectionHeader kicker="关于" lines={['关于我']} />
+
+          <div className="grid md:grid-cols-5 gap-10 md:gap-12 mt-10">
+            <PopIn className="md:col-span-3" delay={0.05}>
+              <div className="flex items-center gap-4 mb-8">
+                {/* TODO: 替换为你的头像 */}
+                <img src="https://i.pravatar.cc/160?img=15" alt="头像" className="w-20 h-20 md:w-24 md:h-24 rounded-full object-cover liquid-glass" />
+                <div>
+                  {/* TODO: 替换为你的姓名 */}
+                  <h3 className="font-heading italic text-white text-3xl md:text-4xl">[姓名]</h3>
+                  <p className="text-white/55 text-sm mt-1 font-body">IP 操盘手 · AI 内容工程师</p>
+                </div>
+              </div>
+
+              <div className="space-y-5 text-white/80 font-body font-light leading-relaxed text-[15px] md:text-base">
+                <p>过去 6 年我都在做同一件事——把别人脑子里的"想做什么"，变成屏幕另一头千千万万人愿意为之停留、点赞、付费的东西。</p>
+                <p>从 MCN 内容总监到独立操盘，我陪跑过 20+ 品牌：有从 0 起号 8 个月做到 50万粉的颜值号，有把 CEO 推上行业 Top10 的 B2B IP，也有把传统消费品做成情绪共鸣型 IP 的案例。</p>
+                <p className="text-white/95">AI 出现之后，这件事被彻底重写。我不再相信"靠堆人头做内容"，我相信一个会用 AI 的操盘手，能把一支团队的活儿一个人做完，而且做得更好。</p>
+              </div>
+            </PopIn>
+
+            <PopIn className="md:col-span-2" delay={0.18}>
+              <p className="text-xs uppercase tracking-widest text-white/45 mb-5 font-body">能做的事</p>
+              <div className="flex flex-wrap gap-1.5">
+                {SKILLS.map(s => (
+                  <span key={s} className="liquid-glass rounded-full px-3 py-1 text-[11px] text-white/90 font-body whitespace-nowrap">{s}</span>
+                ))}
+              </div>
+            </PopIn>
+          </div>
+        </section>
+      );
+    }
+
+    // ============================================
+    // Section: 联系
+    // ============================================
+    function ContactSection() {
+      return (
+        <section id="contact" className="relative z-10 min-h-screen px-8 md:px-16 lg:px-20 pt-20 pb-12 flex flex-col">
+          <p className="text-sm font-body text-white/80 mb-6">// 联系</p>
+
+          <div className="grid md:grid-cols-5 gap-12 md:gap-16 items-start mb-auto">
+            <PopIn className="md:col-span-3" delay={0.05}>
+              <h2 className="font-display font-black text-white text-4xl md:text-5xl lg:text-6xl leading-[1.1] tracking-tight">
+                如果你正在认真做IP，<br/>我们可以聊聊。
+              </h2>
+              <p className="mt-8 max-w-xl text-white/80 font-body font-light text-[15px] md:text-base leading-relaxed">
+                你可以先准备一个问题：现在最卡的是定位、内容、增长，还是商业转化。一次清楚的沟通，通常比盲目更新十条内容更有价值。
+              </p>
+
+              <div className="flex flex-wrap gap-3 mt-10">
+                <a href="mailto:2411031277@qq.com" className="bg-white text-black px-5 py-2.5 text-sm font-medium rounded-full inline-flex items-center gap-2 font-body">
+                  发送邮件 <ArrowUpRight className="h-4 w-4" />
+                </a>
+                <a href="tel:+8618946170590" className="liquid-glass rounded-full px-5 py-2.5 text-sm font-medium text-white font-body">
+                  拨打电话
+                </a>
+                <a href="#wechat-qr" className="liquid-glass rounded-full px-5 py-2.5 text-sm font-medium text-white font-body">
+                  查看微信
+                </a>
+              </div>
+            </PopIn>
+
+            <PopIn className="md:col-span-2" delay={0.2}>
+              <div id="wechat-qr" className="liquid-glass rounded-[1.25rem] aspect-square bg-white/[0.02] flex items-center justify-center p-4 md:p-6 mb-6">
+                <div className="bg-white rounded-2xl w-full h-full p-3 flex items-center justify-center overflow-hidden">
+                  <img src="wechat-qr.png" alt="微信二维码 shenlexin0915" className="w-full h-full object-contain" />
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <p className="text-white font-medium font-body text-sm mb-1">微信</p>
+                  <p className="text-white/60 text-sm font-body select-all">shenlexin0915</p>
+                </div>
+                <div>
+                  <p className="text-white font-medium font-body text-sm mb-1">电话</p>
+                  <p className="text-white/60 text-sm font-body select-all">18946170590</p>
+                </div>
+                <div>
+                  <p className="text-white font-medium font-body text-sm mb-1">邮箱</p>
+                  <p className="text-white/60 text-sm font-body select-all">2411031277@qq.com</p>
+                </div>
+              </div>
+            </PopIn>
+          </div>
+
+          {/* Footer */}
+          <footer className="mt-20 pt-8 border-t border-white/10 flex flex-wrap items-center justify-between gap-4 text-xs text-white/40 font-body">
+            <p>© 2026 [姓名] · 用 AI 把好的内容送给该看到它的人</p>
+            <div className="flex gap-4">
+              <a href="#top" className="hover:text-white/70 transition">回到顶部 ↑</a>
+            </div>
+          </footer>
+        </section>
+      );
+    }
+
+    // ============================================
+    // App
+    // ============================================
+    function App() {
+      return (
+        <>
+          <Starfield />
+          <Navbar />
+          <main className="relative z-10 text-white font-body">
+            <Hero />
+            <AboutSection />
+            <CasesSection />
+            <MethodSection />
+            <WorksSection />
+            <ContactSection />
+          </main>
+        </>
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>
